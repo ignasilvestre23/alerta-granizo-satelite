@@ -20,5 +20,5 @@ jobs:
       - run: pip install -r satelite/requirements.txt h5py
       - run: python satelite/satellite_job.py
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: sb_publishable_io-1pP_Y5N0SCTutKTsknw_Aw45nPGk
+          SUPABASE_URL: https://iivmcfpsuvdhsbfqqzzd.supabase.co
+          SUPABASE_SERVICE_KEY: sb_secret_x-KpzRJJ_licW-S5gzM0og_TmxlHCWo
