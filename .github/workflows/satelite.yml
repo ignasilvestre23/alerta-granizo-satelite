@@ -21,4 +21,4 @@ jobs:
       - run: python satelite/satellite_job.py
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          SUPABASE_SERVICE_KEY: sb_publishable_io-1pP_Y5N0SCTutKTsknw_Aw45nPGk
