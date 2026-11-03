@@ -17,7 +17,7 @@ jobs:
           python-version: '3.11'
           cache: pip
           cache-dependency-path: satelite/requirements.txt
-      - run: pip install -r satelite/requirements.txt
+      - run: pip install -r satelite/requirements.txt h5py
       - run: python satelite/satellite_job.py
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
