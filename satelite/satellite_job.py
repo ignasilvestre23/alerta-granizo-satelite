@@ -19,9 +19,11 @@ from datetime import datetime, timedelta, timezone
 
 import numpy as np
 
-# Región: Argentina, Chile, Uruguay y alrededores
-LAT_MIN, LAT_MAX = -56.0, -20.0
-LON_MIN, LON_MAX = -76.0, -52.0
+# Región: todo lo que ve GOES-East (América y Atlántico). Para achicar y que corra
+# más rápido, bajá estos valores (por ej. Sudamérica: -56, 15, -85, -30).
+LAT_MIN, LAT_MAX = -58.0, 58.0
+LON_MIN, LON_MAX = -140.0, -20.0
+STRIDE = int(os.environ.get("SAT_STRIDE", "2"))   # 2 = píxeles de 4 km (más rápido)
 
 BUCKETS = [("noaa-goes19", "G19"), ("noaa-goes16", "G16")]
 REQ = 6378137.0
