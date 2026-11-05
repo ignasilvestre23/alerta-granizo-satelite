@@ -31,7 +31,7 @@ RPOL = 6356752.31414
 E2 = 1.0 - (RPOL ** 2) / (REQ ** 2)
 
 COLD_BT = 225.0     # K: tope frío = nube muy alta (≈ -48 °C)
-MIN_PIXELS = 8      # tamaño mínimo de una celda fría
+MIN_PIXELS = 5      # tamaño mínimo de una celda fría (con STRIDE=2)
 BIN_DEG = 0.15      # ~16 km: tamaño de la celda de rayos
 
 
@@ -173,7 +173,7 @@ def cluster_lightning(w1, w0):
         out.append({"lat": round(float(clat), 3), "lon": round(float(clon), 3),
                     "n": n, "p": p, "vx": vx, "vy": vy})
     out.sort(key=lambda c: -c["n"])
-    return out[:400]
+    return out[:1500]
 
 
 def read_glm(fs, key):
@@ -224,8 +224,11 @@ def find_cold_cells(bt, lat, lon, prev_bt=None, ht_km=None):
     mask = np.isfinite(bt) & (bt <= COLD_BT) & inside
     lab, n = ndimage.label(mask)
     cells = []
-    for i in range(1, n + 1):
-        ys, xs = np.nonzero(lab == i)
+      for i, sl in enumerate(ndimage.find_objects(lab), start=1):
+        if sl is None:
+            continue
+        ys, xs = np.nonzero(lab[sl] == i)
+        ys, xs = ys + sl[0].start, xs + sl[1].start
         if len(ys) < MIN_PIXELS:
             continue
         vals = bt[ys, xs]
@@ -245,16 +248,15 @@ def find_cold_cells(bt, lat, lon, prev_bt=None, ht_km=None):
             top = est_top_km(bt_min)
         g = None
         if prev_bt is not None:
-            y0, y1 = max(cy - 15, 0), min(cy + 16, bt.shape[0])
-            x0, x1 = max(cx - 15, 0), min(cx + 16, bt.shape[1])
+            y0, y1 = max(cy - 8, 0), min(cy + 9, bt.shape[0])
+            x0, x1 = max(cx - 8, 0), min(cx + 9, bt.shape[1])
             win = prev_bt[y0:y1, x0:x1]
             if np.isfinite(win).any():
                 g = round(float(np.nanmin(win)) - bt_min, 1)   # >0: hoy está más fría
         cells.append({"lat": round(la, 3), "lon": round(lo, 3), "bt": round(bt_min, 1),
                       "px": int(len(ys)), "top": round(top, 1), "te": est, "g": g})
     cells.sort(key=lambda c: c["bt"])
-    return cells[:300]
-
+    return cells[:1600]
 
 def read_cmi(fs, key, with_latlon=True):
     import xarray as xr
@@ -265,10 +267,10 @@ def read_cmi(fs, key, with_latlon=True):
         lon0 = float(proj["longitude_of_projection_origin"])
         xs, ys = ds["x"].values.astype("float64"), ds["y"].values.astype("float64")
         ix0, ix1, iy0, iy1 = region_slices(xs, ys, h, lon0)
-        bt = ds["CMI"].isel(y=slice(iy0, iy1), x=slice(ix0, ix1)).values.astype("float32")
+        bt = ds["CMI"].isel(y=slice(iy0, iy1, STRIDE), x=slice(ix0, ix1, STRIDE)).values.astype("float32")
         lat = lon = None
         if with_latlon:
-            gx, gy = np.meshgrid(xs[ix0:ix1], ys[iy0:iy1])
+            gx, gy = np.meshgrid(xs[ix0:ix1:STRIDE], ys[iy0:iy1:STRIDE])
             lat, lon = nav_inverse(gx, gy, h, lon0)
         return bt, lat, lon, (ix0, ix1, iy0, iy1)
 
