@@ -280,7 +280,7 @@ def read_acha(fs, key, sl):
     ix0, ix1, iy0, iy1 = sl
     with fs.open(key, "rb") as f:
         ds = xr.open_dataset(f, engine="h5netcdf")
-        ht = ds["HT"].isel(y=slice(iy0, iy1), x=slice(ix0, ix1)).values.astype("float32")
+        ht = ds["HT"].isel(y=slice(iy0, iy1, STRIDE), x=slice(ix0, ix1, STRIDE)).values.astype("float32")
         return ht / 1000.0     # m -> km
 
 
