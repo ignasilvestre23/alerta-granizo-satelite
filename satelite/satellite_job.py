@@ -224,7 +224,7 @@ def find_cold_cells(bt, lat, lon, prev_bt=None, ht_km=None):
     mask = np.isfinite(bt) & (bt <= COLD_BT) & inside
     lab, n = ndimage.label(mask)
     cells = []
-      for i, sl in enumerate(ndimage.find_objects(lab), start=1):
+    for i, sl in enumerate(ndimage.find_objects(lab), start=1):
         if sl is None:
             continue
         ys, xs = np.nonzero(lab[sl] == i)
@@ -256,7 +256,8 @@ def find_cold_cells(bt, lat, lon, prev_bt=None, ht_km=None):
         cells.append({"lat": round(la, 3), "lon": round(lo, 3), "bt": round(bt_min, 1),
                       "px": int(len(ys)), "top": round(top, 1), "te": est, "g": g})
     cells.sort(key=lambda c: c["bt"])
-    return cells[:1600]
+    return cells[:600]
+
 
 def read_cmi(fs, key, with_latlon=True):
     import xarray as xr
